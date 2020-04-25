@@ -36,10 +36,9 @@ int main() {
     printf("Ingrese la cantidad de clientes(entre 1 y 5): \n"); scanf("%d",&cant_clientes);
     //FALTA EL CONTROL ESCTRICTO DE CANTIDAD CLIENTES//  
     CargaCliente(Nuevo_Cliente, cant_clientes);
-    Costo_total(Nuevo_Cliente->Productos);
     MostrarCliente(Nuevo_Cliente,cant_clientes);
     scanf(" %c");
-    //free(Nuevo_Cliente);
+    free(Nuevo_Cliente);
     return 0;
 }
 
