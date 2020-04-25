@@ -1,24 +1,10 @@
-/*1.Desarrollar una interfaz por consola donde se solicite al usuario la cantidad de clientes.
- 2.Solicitar al usuario la cargadelos clientescreados dinámicamente en el paso anterior.
- 3.A medida que se dé de alta cada cliente, Generar aleatoriamente la cantidad de productos asociados al cliente ysus características.
- Ej:producto cargado nro. 2
- Producto
- {
-    ProductoID=2;
-    Cantidad= 1;
-    *TipoProducto = “Snack”;
-    PrecioUnitario= 100;
-}
- 4.Implemente una función que calcule el costo total de un producto.Esta funcióndebe recibir como parámetro el producto y 
- devolver el resultado de calcular laCantidad por elPrecioUnitario.
- 5.Mostrar  por  pantalla  todo  lo  cargado.  Incluyendo un  total  a  pagar  por  cliente (sumatoria del costo de todos los productos)*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
 int tama = 50; //tamaño para aux del nombre
-const char *ListaProductos[]={"Galletas","Snack","Cigarrillos","Caramelos","Bebidas"};
+char *ListaProductos[]={"Galletas","Snack","Cigarrillos","Caramelos","Bebidas"};
 
 typedef struct
 {
@@ -40,6 +26,7 @@ int aleatorio(int min,int max);
 void CargaCliente(T_Cliente *cliente, int cant_clientes);
 void CargaProducto(T_Producto *productos,int cant_productos);
 void MostrarCliente(T_Cliente *cliente, int cant_clientes);
+float Costo_total(T_Producto *cliente);
 
 int main() {
     srand(time(NULL)); 
@@ -49,9 +36,10 @@ int main() {
     printf("Ingrese la cantidad de clientes(entre 1 y 5): \n"); scanf("%d",&cant_clientes);
     //FALTA EL CONTROL ESCTRICTO DE CANTIDAD CLIENTES//  
     CargaCliente(Nuevo_Cliente, cant_clientes);
+    Costo_total(Nuevo_Cliente->Productos);
     MostrarCliente(Nuevo_Cliente,cant_clientes);
     scanf(" %c");
-   // free(Nuevo_Cliente);
+    //free(Nuevo_Cliente);
     return 0;
 }
 
@@ -59,43 +47,54 @@ int main() {
 int aleatorio(int min,int max){
     return min + rand() % (max-min+1);
 }
-void CargaCliente(T_Cliente *cliente, int cant_clientes)  //
+void CargaCliente(T_Cliente *cliente, int cant_clientes) 
 {   
-    //for (int i = 0; i < cant_clientes; i++)
-   // {
+    for (int i = 0; i < cant_clientes; i++)
+    {
         char aux[tama]; //Guardo lo ingresado por pantalla
-        printf("Ingrese el nombre del cliente N°"); scanf("%s",aux);
-        cliente->NombreCliente = (char *)malloc(strlen(aux)+1 * sizeof(char)); //Devuelve el tamaño de la cadena + el caracter de escape
-        strcpy(cliente->NombreCliente,aux);
-        cliente->CantidadProductosAPedir = aleatorio(1,5);
-        cliente->Productos = (T_Producto *)malloc(cliente->CantidadProductosAPedir * sizeof(T_Producto)); //Reserva para struc productos
-        CargaProducto(cliente->Productos,cliente->CantidadProductosAPedir);
-   // }
+        (cliente + i)->ClienteID = i+1;
+        printf("Ingrese el nombre del cliente: "); scanf("%s",aux);
+        (cliente + i)->NombreCliente = (char *)malloc(strlen(aux)+1 * sizeof(char)); //Devuelve el tamaño de la cadena + el caracter de escape
+        strcpy((cliente + i)->NombreCliente,aux);
+        (cliente + i)->CantidadProductosAPedir = aleatorio(1,5);
+        (cliente + i)->Productos = (T_Producto *)malloc((cliente + i)->CantidadProductosAPedir * sizeof(T_Producto)); //Reserva para struc productos
+        CargaProducto((cliente + i)->Productos,(cliente + i)->CantidadProductosAPedir);
+    }
 }
 void CargaProducto(T_Producto *productos,int cant_productos)
 {
     for (int i = 0; i < cant_productos; i++)
     {
-        (productos + i)->ProductoID = i+1;
+        int aux_id = aleatorio(1,5);
+        (productos + i)->ProductoID = aux_id;
         (productos + i)->Cantidad = aleatorio(1,5);
-        (productos + i)->TipoProducto = (char*)malloc(15*sizeof(char)); 
-        strcpy((productos + i)->TipoProducto,ListaProductos[aleatorio(0,4)]);
+        (productos + i)->TipoProducto = (char*)malloc(20*sizeof(char)); 
+        strcpy((productos + i)->TipoProducto,ListaProductos[aux_id]);
         (productos + i)->PrecioUnitario =(float)aleatorio(10,100);
     }
 }
 void MostrarCliente(T_Cliente *cliente, int cant_clientes)
 {
+    
     for (int i = 0; i < cant_clientes; i++)
     {
+        float aux_total = 0; //Inicializar en 0 cada  vez que entra nuevo cliente
         printf("Cliente N: %d\n",(cliente + i)->ClienteID);
         printf("Nombre: %s\n",(cliente + i)->NombreCliente);
         printf("Cantidad de productos solicitados: %d\n",(cliente + i)->CantidadProductosAPedir);
-        for (int j = 0; j < cliente->CantidadProductosAPedir; j++)
+        for (int j = 0; j < (cliente + i)->CantidadProductosAPedir; j++)
         {
-            printf("ID del producto: %d\n",(cliente + i)->Productos[j]->ProductoID); //FALTA PONER CORRECTAMENTE EL ID para que se asocie al prod
-            printf("Stock: %d\n",(cliente + i)->Productos->Cantidad);
-            printf("Producto: %c\n",(cliente + i)->Productos->TipoProducto);//queda pendiente el tipo hasta que use enum//
-            printf("Precio Unitario: %.2f\n",(cliente + i)->Productos->PrecioUnitario);
+            printf("ID del producto: %d\n",((cliente+i)->Productos + j)->ProductoID);  
+            printf("Cantidad: %d\n",((cliente+i)->Productos + j)->Cantidad);
+            printf("Producto: %s\n",((cliente+i)->Productos + j)->TipoProducto);
+            printf("Precio Unitario: %.2f\n",((cliente+i)->Productos + j)->PrecioUnitario);
+            aux_total = aux_total + Costo_total((cliente+i)->Productos+j);
         }
+        printf("El costo total de los productos es: %.3f\n",aux_total);
+        printf("-------------------------------------------\n");
     }
+}
+float Costo_total(T_Producto *producto)
+{
+    return producto->Cantidad * producto->PrecioUnitario;
 }
