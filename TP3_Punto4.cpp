@@ -4,7 +4,7 @@
 #include <time.h>
 
 int tama = 50; //tamaño para aux del nombre
-char *ListaProductos[]={"Galletas","Snack","Cigarrillos","Caramelos","Bebidas"};
+const char *ListaProductos[]={"Galletas","Snack","Cigarrillos","Caramelos","Bebidas"};
 
 typedef struct
 {
@@ -31,9 +31,10 @@ float Costo_total(T_Producto *cliente);
 int main() {
     srand(time(NULL)); 
     int cant_clientes;
-    T_Cliente *Nuevo_Cliente = (T_Cliente*)malloc(sizeof(T_Cliente));
+    T_Cliente *Nuevo_Cliente;
    
     printf("Ingrese la cantidad de clientes(entre 1 y 5): \n"); scanf("%d",&cant_clientes);
+    Nuevo_Cliente = (T_Cliente*)malloc(cant_clientes * sizeof(T_Cliente));
     //FALTA EL CONTROL ESCTRICTO DE CANTIDAD CLIENTES//  
     CargaCliente(Nuevo_Cliente, cant_clientes);
     MostrarCliente(Nuevo_Cliente,cant_clientes);
@@ -52,7 +53,7 @@ void CargaCliente(T_Cliente *cliente, int cant_clientes)
     {
         char aux[tama]; //Guardo lo ingresado por pantalla
         (cliente + i)->ClienteID = i+1;
-        printf("Ingrese el nombre del cliente: "); scanf("%s",aux);
+        printf("Ingrese el nombre del cliente N%d: ",i+1); scanf("%s",aux);
         (cliente + i)->NombreCliente = (char *)malloc(strlen(aux)+1 * sizeof(char)); //Devuelve el tamaño de la cadena + el caracter de escape
         strcpy((cliente + i)->NombreCliente,aux);
         (cliente + i)->CantidadProductosAPedir = aleatorio(1,5);
@@ -64,7 +65,7 @@ void CargaProducto(T_Producto *productos,int cant_productos)
 {
     for (int i = 0; i < cant_productos; i++)
     {
-        int aux_id = aleatorio(1,5);
+        int aux_id = aleatorio(1,5); //Para relacionar el ID con LISTAPRODUCTOS
         (productos + i)->ProductoID = aux_id;
         (productos + i)->Cantidad = aleatorio(1,5);
         (productos + i)->TipoProducto = (char*)malloc(20*sizeof(char)); 
